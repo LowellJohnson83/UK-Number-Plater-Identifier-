@@ -59,50 +59,64 @@ for x in range(20, 21):
 
 
 plate = current_plate_6
-sys = ""
-date = ""
 
-plate_parsed = plate.split()
-# print(plate_parsed)
-if plate_parsed[1][-2].isnumeric():
-    # print("Suffix Digit Style Number Plate (1963 to 1983)")
-    char = "" + plate_parsed[0]
-    sys = "suffix"
-elif plate_parsed[0][1].isnumeric():
-    # print("Prefix Digit Style Number Plate (1983 to 2002)")
-    char = "" + plate_parsed[-1]
-    sys = "prefix"
-elif plate_parsed[0][2].isnumeric() and plate_parsed[0][3].isnumeric():
-    # print("Current Style Number Plate (2002 onwards)")
-    char = "" + plate_parsed[0][2] + plate_parsed[0][3]
-    sys = "current"
+def plate_parser(number):
+    sys = ""
+    date = ""
+    number = str(number)
+    plate_parsed = number.split()
+    
+    # print(plate_parsed)
+    if plate_parsed[1][-2].isnumeric():
+        # print("Suffix Digit Style Number Plate (1963 to 1983)")
+        char = "" + plate_parsed[0]
+        sys = "suffix letter"
+    elif plate_parsed[0][1].isnumeric():
+        # print("Prefix Digit Style Number Plate (1983 to 2002)")
+        char = "" + plate_parsed[-1]
+        sys = "prefix letter"
+    elif plate_parsed[0][2].isnumeric() and plate_parsed[0][3].isnumeric():
+        # print("Current Style Number Plate (2002 onwards)")
+        char = "" + plate_parsed[0][2] + plate_parsed[0][3]
+        sys = "'current' (post-2001)"
+
+    if sys == "suffix":
+        for l in range(len(reg_suffix_letter)):
+            if char == reg_suffix_letter[l]:
+                date = reg_suffix_year[l]
+    elif sys == "prefix":
+        for l in range(len(reg_suffix_letter)):
+            if char == reg_prefix_letter[l]:
+                date = reg_prefix_year[l]
+    elif sys == "'current' (post-2001)":
+        date = int(char) + 2000
+        if int(char[0]) >= 5:
+            date -= 50
+
+    year = int(date)
+    month = ""
+
+    if date % 1 == 0:
+        month = "January"
+    elif date % 1 == 0.25:
+        month = "March"
+    elif date % 1 == 0.5:
+        month = "Aug"
+    elif date % 1 == 0.75:
+        month = "September"
+
+    return sys, year, month
 
 
+def plate_identifier(number):
+    
+    pl_id = plate_parser(number)
+    sys, year, month = pl_id[0], pl_id[1], pl_id[2]
 
-if sys == "suffix":
-    for l in range(len(reg_suffix_letter)):
-        if char == reg_suffix_letter[l]:
-            date = reg_suffix_year[l]
-elif sys == "prefix":
-    for l in range(len(reg_suffix_letter)):
-        if char == reg_prefix_letter[l]:
-            date = reg_prefix_year[l]
-elif sys == "current":
-    date = int(char) + 2000
-    if int(char[0]) >= 5:
-        date -= 50
-
-year = int(date)
-month = ""
-
-if date % 1 == 0:
-    month = "January"
-elif date % 1 == 0.25:
-    month = "March"
-elif date % 1 == 0.5:
-    month = "Aug"
-elif date % 1 == 0.75:
-    month = "September"
+    sentence = f"\nThis number plate is a {sys} number plate.\n\ The approximate registered date is {month} {year}.\n"
+    
+    return sentence
 
 
-print(f"{month} {year}")
+print(plate_identifier(current_plate_6))
+
